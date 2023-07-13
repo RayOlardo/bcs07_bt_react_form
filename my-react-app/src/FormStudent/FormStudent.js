@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addStudent } from "../redux/actions/formActions";
-import { validateForm } from "../validation/validateForm";
+import {
+  validateEmail,
+  validateForm,
+  validateName,
+  validatePhone,
+} from "../validation/validateForm";
 
 const FormStudent = () => {
   // set State dữ liệu
@@ -15,15 +20,17 @@ const FormStudent = () => {
   // tạo mảng để thêm sinh viên
   const [studentsList, setStudentsList] = useState([]);
 
-
   // tạo state submit
-  const [btnAdd, setBtnAdd] = useState(true)
-
+  const [btnAdd, setBtnAdd] = useState(true);
 
   // validate rỗng
-  const isNotEmpty = validateForm(data)
-
-
+  const isNotEmpty = validateForm(data);
+  // validate name
+  const isText = validateName(data);
+  // valite number
+  const isNumber = validatePhone(data);
+  // validate email
+  const isEmail = validateEmail(data);
 
   const handleChange = (event) => {
     event.persist();
@@ -33,20 +40,18 @@ const FormStudent = () => {
       [id]: value,
     }));
     console.log(value);
+    if (isNotEmpty && isText && isNumber && isEmail) {
+      setBtnAdd(false);
+    } else {
+      setBtnAdd(true);
+    }
   };
-
-
-  // validate rỗng
-
-
-
 
   // useDispatch
   const dispatch = useDispatch();
 
   const handleSubmit = (event) => {
-    if(!isNotEmpty){
-      btnAdd(false)
+    if (!isNotEmpty) {
       return;
     }
     event.preventDefault();
@@ -123,7 +128,11 @@ const FormStudent = () => {
               </div>
             </div>
             <div style={{ borderTop: "0" }} className="card-footer bg-light">
-              <button disabled={btnAdd} type="submit" className="btn btn-success">
+              <button
+                disabled={btnAdd}
+                type="submit"
+                className="btn btn-success"
+              >
                 Add new students
               </button>
               <button className="btn btn-warning ms-3">Update</button>
