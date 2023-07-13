@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addStudent } from "../redux/actions/formActions";
 import {
@@ -15,8 +15,9 @@ const FormStudent = () => {
     name: "",
     phone: "",
     email: "",
-  });
+  })
 
+ 
   // tạo mảng để thêm sinh viên
   const [studentsList, setStudentsList] = useState([]);
 
@@ -59,6 +60,8 @@ const FormStudent = () => {
     event.preventDefault();
     const newStudent = { ...data };
     setStudentsList([...studentsList, newStudent]);
+    // lưu dữ liệu xuống local
+    localStorage.setItem('studentList', JSON.stringify(studentsList))
     dispatch(addStudent(data));
     setData({
       id: "",
@@ -69,7 +72,13 @@ const FormStudent = () => {
     setBtnAdd(true)
   };
 
-
+  // lấy dữ liệu từ local
+   useEffect(()=>{
+    const storeDataList = localStorage.getItem('studentList')
+    if(storeDataList){
+      setStudentsList(JSON.parse(storeDataList))
+    }
+  },[])
   // xoá sinh viên
   const deleteStudent = (id) => {
     const updateList = studentsList.filter((student)=> student.id !== id);
