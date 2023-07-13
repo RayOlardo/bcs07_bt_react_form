@@ -50,6 +50,8 @@ const FormStudent = () => {
   // useDispatch
   const dispatch = useDispatch();
 
+
+  // thêm sinh viên
   const handleSubmit = (event) => {
     if (!isNotEmpty) {
       return;
@@ -64,15 +66,54 @@ const FormStudent = () => {
       phone: "",
       email: "",
     });
-    console.log(data);
+    setBtnAdd(true)
   };
 
+
+  // xoá sinh viên
   const deleteStudent = (id) => {
     const updateList = studentsList.filter((student)=> student.id !== id);
       setStudentsList(updateList)
   }
+  // lấy dữ liệu từ hàm findStudent
+  const [editStudent, setEditStudent] = useState(null)
 
-  //  useSelector
+  // tìm sinh viên
+  const findStudent = (id) => {
+    const selectedStudent = studentsList.find((student) => student.id == id);
+    setData({
+      id: selectedStudent.id,
+      name: selectedStudent.name,
+      phone: selectedStudent.phone,
+      email: selectedStudent.email,
+    })
+    setEditStudent(selectedStudent)
+  }
+  console.log(editStudent)
+
+
+  // cập nhật sinh viên
+  const updateStudent = () => {
+
+    if(!editStudent){
+      return
+    }
+    const updateList = studentsList.map((student)=>{
+      if(student.id === editStudent.id){
+        return data
+      }
+      return student;
+    })
+    setStudentsList(updateList)
+    setEditStudent(null)
+    setData({
+      id: "",
+      name: "",
+      phone: "",
+      email: "",
+    });
+    setBtnAdd(true)
+  }
   return (
     <div>
       <div className="container">
@@ -84,6 +125,7 @@ const FormStudent = () => {
                 <div className="col-6">
                   <label htmlFor="id">ID</label>
                   <input
+                    disabled={editStudent}
                     onChange={handleChange}
                     value={data.id}
                     className="form-control"
@@ -140,7 +182,11 @@ const FormStudent = () => {
               >
                 Add new students
               </button>
-              <button className="btn btn-warning ms-3">Update</button>
+              <button
+              disabled={!editStudent}
+              type="button"
+              onClick={updateStudent}
+              className="btn btn-warning ms-3">Update</button>
             </div>
           </form>
         </div>
@@ -163,9 +209,13 @@ const FormStudent = () => {
                   <button
                   onClick={()=>{
                     deleteStudent(student.id)
-                  }}
+                  }}s
                   className="btn btn-danger">Xoá</button>
-                  <button className="btn btn-warning">Sửa</button>
+                  <button 
+                  onClick={()=>{
+                    findStudent(student.id)
+                  }}
+                  className="btn btn-warning">Sửa</button>
                 </td>
               </tr>
             ))}
