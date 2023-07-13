@@ -67,6 +67,11 @@ const FormStudent = () => {
     console.log(data);
   };
 
+  const deleteStudent = (id) => {
+    const updateList = studentsList.filter((student)=> student.id !== id);
+      setStudentsList(updateList)
+  }
+
   //  useSelector
   return (
     <div>
@@ -148,14 +153,18 @@ const FormStudent = () => {
             <th>Action</th>
           </thead>
           <tbody>
-            {studentsList.map((item, index) => (
+            {studentsList.map((student, index) => (
               <tr key={index}>
-                <td>{item.id}</td>
-                <td>{item.name}</td>
-                <td>{item.phone}</td>
-                <td>{item.email}</td>
+                <td>{student.id}</td>
+                <td>{student.name}</td>
+                <td>{student.phone}</td>
+                <td>{student.email}</td>
                 <td>
-                  <button className="btn btn-danger">Xoá</button>
+                  <button
+                  onClick={()=>{
+                    deleteStudent(student.id)
+                  }}
+                  className="btn btn-danger">Xoá</button>
                   <button className="btn btn-warning">Sửa</button>
                 </td>
               </tr>

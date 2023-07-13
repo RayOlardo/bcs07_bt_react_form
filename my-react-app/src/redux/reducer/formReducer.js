@@ -1,3 +1,4 @@
+import { addStudent, deleteStudent } from "../actions/formActions"
 const initialState = {
   students: {
     id: '',
@@ -10,12 +11,13 @@ const initialState = {
 
 export const rootReducer = (state = initialState ,action) => {
   switch(action.type){
-    case 'addStudent':{
+    case addStudent:{
       return{
         ...state,
         students: {...state.students, ...action.payload}
       }
     }
+    
     default: return state
   }
 
