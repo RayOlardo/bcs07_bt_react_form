@@ -74,7 +74,7 @@ const FormStudent = () => {
         break;
       case "letter":
         {
-          const regexLetter = /^[a-zA-Z\s]+$/;
+          const regexLetter = /^[a-zA-Z\u00C0-\u00FF\s]+$/;
           const result = regexLetter.test(data.name);
           if (!result) {
             setError((prevError) => ({
@@ -146,13 +146,18 @@ const FormStudent = () => {
       setStudentsList(JSON.parse(storeDataList));
     }
   }, []);
+
+
   // xoá sinh viên
   const deleteStudent = (id) => {
     const updateList = studentsList.filter((student) => student.id !== id);
-    setStudentsList(updateList, () => {
-      localStorage.setItem("studentList", JSON.stringify(studentsList));
-    });
+    setStudentsList(updateList)
   };
+  useEffect(()=>{
+    localStorage.setItem('studentList', JSON.stringify(studentsList));
+  },[studentsList])
+
+
   // lấy dữ liệu từ hàm findStudent
   const [editStudent, setEditStudent] = useState(null);
 
@@ -193,10 +198,17 @@ const FormStudent = () => {
 
   // search tìm sinh viên
   const [search, setSearch] = useState("");
-  console.log(search);
-  const handleSearch = (e) => {
-    setSearch(e.target.value);
-  };
+  console.log(studentsList)
+  // sắp xếp sinh viên
+  const sortStudent = () => {
+    const sorted = [...studentsList].sort((a, b)=>{
+      // thứ tự từ a - z
+      return a.name > b.name ? 1 : -1
+    })
+    setStudentsList(sorted)
+  }
+
+
   return (
     <div>
       <div className="container">
@@ -219,7 +231,7 @@ const FormStudent = () => {
                 type="button"
                 id="button-addon2"
               >
-                Button
+                <i className="fa-solid fa-magnifying-glass"></i>
               </button>
             </div>
           </div>
@@ -294,8 +306,12 @@ const FormStudent = () => {
               >
                 Update
               </button>
-              <button type="button" className="btn btn-primary ms-3">
-                Sắp xếp
+              <button
+                type="button"
+                onClick={sortStudent}
+                className="btn btn-primary ms-3"
+              >
+                Arrange
               </button>
             </div>
           </form>
@@ -327,9 +343,9 @@ const FormStudent = () => {
                         deleteStudent(student.id);
                       }}
                       s
-                      className="btn btn-danger"
+                      className="btn btn-danger me-2"
                     >
-                      Xoá
+                      Delete
                     </button>
                     <button
                       onClick={() => {
@@ -337,7 +353,7 @@ const FormStudent = () => {
                       }}
                       className="btn btn-warning"
                     >
-                      Sửa
+                      Fix
                     </button>
                   </td>
                 </tr>
