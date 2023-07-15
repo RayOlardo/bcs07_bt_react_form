@@ -32,6 +32,8 @@ const FormStudent = () => {
 
   // tạo state submit
   const [btnAdd, setBtnAdd] = useState(true);
+  // tạo state arrang
+  const [btnArrange, setBtnArrange] = useState(true);
 
   // validate rỗng
   const isNotEmpty = validateForm(data);
@@ -137,6 +139,9 @@ const FormStudent = () => {
       email: "",
     });
     setBtnAdd(true);
+    if(studentsList.length >= 1){
+      setBtnArrange(false)
+    }
   };
 
   // lấy dữ liệu từ local
@@ -147,16 +152,17 @@ const FormStudent = () => {
     }
   }, []);
 
-
   // xoá sinh viên
   const deleteStudent = (id) => {
     const updateList = studentsList.filter((student) => student.id !== id);
-    setStudentsList(updateList)
+    if(updateList.length <= 1){
+      setBtnArrange(true)
+    }
+    setStudentsList(updateList);
   };
-  useEffect(()=>{
-    localStorage.setItem('studentList', JSON.stringify(studentsList));
-  },[studentsList])
-
+  useEffect(() => {
+    localStorage.setItem("studentList", JSON.stringify(studentsList));
+  }, [studentsList]);
 
   // lấy dữ liệu từ hàm findStudent
   const [editStudent, setEditStudent] = useState(null);
@@ -198,16 +204,17 @@ const FormStudent = () => {
 
   // search tìm sinh viên
   const [search, setSearch] = useState("");
-  console.log(studentsList)
+  console.log(studentsList);
   // sắp xếp sinh viên
   const sortStudent = () => {
-    const sorted = [...studentsList].sort((a, b)=>{
+    const sorted = [...studentsList].sort((a, b) => {
+      
       // thứ tự từ a - z
-      return a.name > b.name ? 1 : -1
-    })
-    setStudentsList(sorted)
-  }
-
+      return a.name > b.name ? 1 : -1;
+    });
+    setStudentsList(sorted);
+  };
+  console.log(studentsList)
 
   return (
     <div>
@@ -307,6 +314,7 @@ const FormStudent = () => {
                 Update
               </button>
               <button
+                disabled={btnArrange}
                 type="button"
                 onClick={sortStudent}
                 className="btn btn-primary ms-3"
@@ -345,7 +353,7 @@ const FormStudent = () => {
                       s
                       className="btn btn-danger me-2"
                     >
-                      Delete
+                     <i className="fa-solid fa-trash"></i>
                     </button>
                     <button
                       onClick={() => {
@@ -353,7 +361,7 @@ const FormStudent = () => {
                       }}
                       className="btn btn-warning"
                     >
-                      Fix
+                     <i className="fa-solid fa-pen"></i>
                     </button>
                   </td>
                 </tr>
