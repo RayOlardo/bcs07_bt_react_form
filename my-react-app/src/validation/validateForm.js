@@ -7,7 +7,7 @@ export const validateForm = (data) => {
 };
 // Validate text
 export const validateName = (data) => {
-  const nameRegex = /^[A-Za-z\s]+$/;
+  const nameRegex = /^[a-zA-Z\s]+$/;
   return nameRegex.test(data.name);
 };
 // Validate number

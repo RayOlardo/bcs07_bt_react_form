@@ -15,9 +15,18 @@ const FormStudent = () => {
     name: "",
     phone: "",
     email: "",
-  })
+  });
 
- 
+  // báo lỗi khi người dùng nhập không đúng yêu cầu
+  const [error, setError] = useState({
+    id: "",
+    name: "",
+    phone: "",
+    email: "",
+  });
+
+  // h lấy type input
+
   // tạo mảng để thêm sinh viên
   const [studentsList, setStudentsList] = useState([]);
 
@@ -33,14 +42,73 @@ const FormStudent = () => {
   // validate email
   const isEmail = validateEmail(data);
 
-  const handleChange = (event) => {
-    event.persist();
-    const { id, value } = event.target;
+  // hàm nhận dữ liệu
+  const handleChange = (e) => {
+    e.persist();
+    const { id, value, dataset } = e.target;
+    const { type } = dataset;
     setData((prevData) => ({
       ...prevData,
       [id]: value,
     }));
-    console.log(value);
+    // console.log(value);
+    console.log(type);
+    // check và báo lỗi cho từng input
+    switch (type) {
+      case "number":
+        {
+          const regexNumber = /^\d+$/;
+          const result = regexNumber.test(data.phone);
+          if (!result) {
+            setError((prevError) => ({
+              ...prevError,
+              [id]: "Bạn đang nhập không đúng kiểu dữ liệu số!!!",
+            }));
+          } else {
+            setError((prevError) => ({
+              ...prevError,
+              [id]: "",
+            }));
+          }
+        }
+        break;
+      case "letter":
+        {
+          const regexLetter = /^[a-zA-Z\s]+$/;
+          const result = regexLetter.test(data.name);
+          if (!result) {
+            setError((prevError) => ({
+              ...prevError,
+              [id]: "Bạn đang nhập không đúng kiểu dữ liệu chữ!!!",
+            }));
+          } else {
+            setError((prevError) => ({
+              ...prevError,
+              [id]: "",
+            }));
+          }
+        }
+        break;
+      case "email":
+        {
+          const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          const result = regexEmail.test(data.email);
+          if (!result) {
+            setError((prevError) => ({
+              ...prevError,
+              [id]: "Bạn đang nhập không đúng kiểu dữ liệu email!!!",
+            }));
+          } else {
+            setError((prevError) => ({
+              ...prevError,
+              [id]: "",
+            }));
+          }
+        }
+        break;
+    }
+
+    // check nhập đủ và đúng định dạng sẽ disabled button thành false
     if (isNotEmpty && isText && isNumber && isEmail) {
       setBtnAdd(false);
     } else {
@@ -51,17 +119,16 @@ const FormStudent = () => {
   // useDispatch
   const dispatch = useDispatch();
 
-
-  // thêm sinh viên
-  const handleSubmit = (event) => {
-    if (!isNotEmpty) {
+  // hàm thêm sinh viên
+  const handleSubmit = (e) => {
+    if (!isNotEmpty && !isText && !isNumber && !isEmail) {
       return;
     }
-    event.preventDefault();
+    e.preventDefault();
     const newStudent = { ...data };
     setStudentsList([...studentsList, newStudent]);
     // lưu dữ liệu xuống local
-    localStorage.setItem('studentList', JSON.stringify(studentsList))
+    localStorage.setItem("studentList", JSON.stringify(studentsList));
     dispatch(addStudent(data));
     setData({
       id: "",
@@ -69,23 +136,25 @@ const FormStudent = () => {
       phone: "",
       email: "",
     });
-    setBtnAdd(true)
+    setBtnAdd(true);
   };
 
   // lấy dữ liệu từ local
-   useEffect(()=>{
-    const storeDataList = localStorage.getItem('studentList')
-    if(storeDataList){
-      setStudentsList(JSON.parse(storeDataList))
+  useEffect(() => {
+    const storeDataList = localStorage.getItem("studentList");
+    if (storeDataList) {
+      setStudentsList(JSON.parse(storeDataList));
     }
-  },[])
+  }, []);
   // xoá sinh viên
   const deleteStudent = (id) => {
-    const updateList = studentsList.filter((student)=> student.id !== id);
-      setStudentsList(updateList)
-  }
+    const updateList = studentsList.filter((student) => student.id !== id);
+    setStudentsList(updateList, () => {
+      localStorage.setItem("studentList", JSON.stringify(studentsList));
+    });
+  };
   // lấy dữ liệu từ hàm findStudent
-  const [editStudent, setEditStudent] = useState(null)
+  const [editStudent, setEditStudent] = useState(null);
 
   // tìm sinh viên
   const findStudent = (id) => {
@@ -95,39 +164,65 @@ const FormStudent = () => {
       name: selectedStudent.name,
       phone: selectedStudent.phone,
       email: selectedStudent.email,
-    })
-    setEditStudent(selectedStudent)
-  }
-  console.log(editStudent)
-
+    });
+    setEditStudent(selectedStudent);
+  };
+  // console.log(editStudent);
 
   // cập nhật sinh viên
   const updateStudent = () => {
-
-    if(!editStudent){
-      return
+    if (!editStudent) {
+      return;
     }
-    const updateList = studentsList.map((student)=>{
-      if(student.id === editStudent.id){
-        return data
+    const updateList = studentsList.map((student) => {
+      if (student.id === editStudent.id) {
+        return data;
       }
       return student;
-    })
-    setStudentsList(updateList)
-    setEditStudent(null)
+    });
+    setStudentsList(updateList);
+    setEditStudent(null);
     setData({
       id: "",
       name: "",
       phone: "",
       email: "",
     });
-    setBtnAdd(true)
-  }
+    setBtnAdd(true);
+  };
+
+  // search tìm sinh viên
+  const [search, setSearch] = useState("");
+  console.log(search);
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+  };
   return (
     <div>
       <div className="container">
         <div className="mt-3">
           <h1>Thông tin sinh viên</h1>
+          <div>
+            <div className="input-group mb-3">
+              <input
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                }}
+                type="text"
+                className="form-control"
+                placeholder="Search....."
+                aria-label="Recipient's username"
+                aria-describedby="button-addon2"
+              />
+              <button
+                className="btn btn-outline-secondary"
+                type="button"
+                id="button-addon2"
+              >
+                Button
+              </button>
+            </div>
+          </div>
           <form onSubmit={handleSubmit} className="card text-dark bg-light">
             <div className="card-body">
               <div className="row mb-3">
@@ -141,7 +236,7 @@ const FormStudent = () => {
                     type="text"
                     id="id"
                   />
-                  <p className="mt-2 text-danger"></p>
+                  <p className="mt-2 text-danger">{error.id}</p>
                 </div>
                 <div className="col-6">
                   <label htmlFor="name">Name</label>
@@ -153,7 +248,7 @@ const FormStudent = () => {
                     data-type="letter"
                     id="name"
                   />
-                  <p className="mt-2 text-danger"></p>
+                  <p className="mt-2 text-danger">{error.name}</p>
                 </div>
               </div>
               <div className="row mt-5">
@@ -167,7 +262,7 @@ const FormStudent = () => {
                     data-type="number"
                     id="phone"
                   />
-                  <p className="mt-2 text-danger"></p>
+                  <p className="mt-2 text-danger">{error.phone}</p>
                 </div>
                 <div className="col-6">
                   <label htmlFor="email">Email</label>
@@ -179,7 +274,7 @@ const FormStudent = () => {
                     data-type="email"
                     id="email"
                   />
-                  <p className="mt-2 text-danger"></p>
+                  <p className="mt-2 text-danger">{error.email}</p>
                 </div>
               </div>
             </div>
@@ -192,10 +287,16 @@ const FormStudent = () => {
                 Add new students
               </button>
               <button
-              disabled={!editStudent}
-              type="button"
-              onClick={updateStudent}
-              className="btn btn-warning ms-3">Update</button>
+                disabled={!editStudent}
+                type="button"
+                onClick={updateStudent}
+                className="btn btn-warning ms-3"
+              >
+                Update
+              </button>
+              <button type="button" className="btn btn-primary ms-3">
+                Sắp xếp
+              </button>
             </div>
           </form>
         </div>
@@ -208,26 +309,39 @@ const FormStudent = () => {
             <th>Action</th>
           </thead>
           <tbody>
-            {studentsList.map((student, index) => (
-              <tr key={index}>
-                <td>{student.id}</td>
-                <td>{student.name}</td>
-                <td>{student.phone}</td>
-                <td>{student.email}</td>
-                <td>
-                  <button
-                  onClick={()=>{
-                    deleteStudent(student.id)
-                  }}s
-                  className="btn btn-danger">Xoá</button>
-                  <button 
-                  onClick={()=>{
-                    findStudent(student.id)
-                  }}
-                  className="btn btn-warning">Sửa</button>
-                </td>
-              </tr>
-            ))}
+            {studentsList
+              .filter((student) => {
+                return search.toLowerCase() === ""
+                  ? student
+                  : student.name.toLowerCase().includes(search);
+              })
+              .map((student, index) => (
+                <tr key={index}>
+                  <td>{student.id}</td>
+                  <td>{student.name}</td>
+                  <td>{student.phone}</td>
+                  <td>{student.email}</td>
+                  <td>
+                    <button
+                      onClick={() => {
+                        deleteStudent(student.id);
+                      }}
+                      s
+                      className="btn btn-danger"
+                    >
+                      Xoá
+                    </button>
+                    <button
+                      onClick={() => {
+                        findStudent(student.id);
+                      }}
+                      className="btn btn-warning"
+                    >
+                      Sửa
+                    </button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
