@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addStudent } from "../redux/actions/formActions";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 import {
   validateEmail,
   validateForm,
@@ -139,8 +141,8 @@ const FormStudent = () => {
       email: "",
     });
     setBtnAdd(true);
-    if(studentsList.length >= 1){
-      setBtnArrange(false)
+    if (studentsList.length >= 1) {
+      setBtnArrange(false);
     }
   };
 
@@ -153,13 +155,16 @@ const FormStudent = () => {
   }, []);
 
   // xoá sinh viên
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
   const deleteStudent = (id) => {
     const updateList = studentsList.filter((student) => student.id !== id);
-    if(updateList.length <= 1){
-      setBtnArrange(true)
+    if (updateList.length <= 1) {
+      setBtnArrange(true);
     }
     setStudentsList(updateList);
+    setShow(false);
   };
+
   useEffect(() => {
     localStorage.setItem("studentList", JSON.stringify(studentsList));
   }, [studentsList]);
@@ -204,20 +209,45 @@ const FormStudent = () => {
 
   // search tìm sinh viên
   const [search, setSearch] = useState("");
-  console.log(studentsList);
+  // console.log(studentsList);
   // sắp xếp sinh viên
   const sortStudent = () => {
     const sorted = [...studentsList].sort((a, b) => {
-      
       // thứ tự từ a - z
       return a.name > b.name ? 1 : -1;
     });
     setStudentsList(sorted);
   };
-  console.log(studentsList)
+  // console.log(studentsList);
+
+  // tạo modal confirm delete
+  const [show, setShow] = useState(false);
+  const handleClose = () => {
+    setShow(false);
+  };
 
   return (
     <div>
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Delete student ???</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete !!!</Modal.Body>
+        <Modal.Footer>
+          <Button
+
+            onClick={() => {
+              deleteStudent(selectedStudentId);
+            }}
+            variant="danger"
+          >
+            Yes
+          </Button>
+          <Button variant="primary" onClick={handleClose}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <div className="container">
         <div className="mt-3">
           <h1>Thông tin sinh viên</h1>
@@ -348,12 +378,13 @@ const FormStudent = () => {
                   <td>
                     <button
                       onClick={() => {
-                        deleteStudent(student.id);
+                        setSelectedStudentId(student.id);
+                        setShow(true);
                       }}
                       s
                       className="btn btn-danger me-2"
                     >
-                     <i className="fa-solid fa-trash"></i>
+                      <i className="fa-solid fa-trash"></i>
                     </button>
                     <button
                       onClick={() => {
@@ -361,7 +392,7 @@ const FormStudent = () => {
                       }}
                       className="btn btn-warning"
                     >
-                     <i className="fa-solid fa-pen"></i>
+                      <i className="fa-solid fa-pen"></i>
                     </button>
                   </td>
                 </tr>
